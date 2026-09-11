@@ -14,11 +14,11 @@
   <img src="images/apple.png" width="800" alt="遊戲主畫面">
   <p><em>▲ 玩家在辦公室地圖中自由探索，尋找逃離的出口</em></p>
 
-  <img src="images/chart.png" width="800" alt="AI 互動與數據報表">
+  <img src="images/chart.png" width="800" alt="數據報表">
   <p><em>▲ Plotly 數據視覺化</em></p>
 
-  <img src="images/gossip1.png" width="390" alt="對話思考">
-  <img src="images/gossip2.png" width="390" alt="AI 互動對話">
+  <img src="images/gossip1.png" width="395" alt="對話思考">
+  <img src="images/gossip2.png" width="395" alt="AI互動對話">
   <p><em>▲ Gemini AI 的動態對話系統</em></p>
 </div>
 
