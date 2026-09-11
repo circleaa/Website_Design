@@ -20,6 +20,9 @@
   <img src="images/gossip1.png" width="395" alt="對話思考">
   <img src="images/gossip2.png" width="395" alt="AI互動對話">
   <p><em>▲ Gemini AI 的動態對話系統</em></p>
+
+  <img src="images/time.png" width="800" alt="時間表單">
+  <p><em>▲ 互動式選填表單</em></p>
 </div>
 
 ## Core Features
