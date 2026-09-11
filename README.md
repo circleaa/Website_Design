@@ -4,10 +4,19 @@
 
 🔗 **[點此立即遊玩 (Live Demo)](https://website-design-nhvi.onrender.com/)**
 
-[遊戲簡報](./RPG.pptx.pdf)
-
 ## Introduction
 「逃離職場」是一個基於 Flask 開發的互動式網頁遊戲（期末專題作品）。玩家將扮演一名渴望準時下班的員工，在辦公室地圖中探索。透過與 NPC 互動、觸發隨機事件，以及檢視業務數據報表，想辦法在壓力爆表前找到出口！
+
+[遊戲簡報](./RPG.pptx.pdf)
+
+## Screenshots
+<div align="center">
+  <img src="images/apple.png" width="800" alt="遊戲主畫面">
+  <p><em>▲ 玩家在辦公室地圖中自由探索，尋找逃離的出口</em></p>
+
+  <img src="images/chart.png" width="800" alt="AI 互動與數據報表">
+  <p><em>▲ 結合 Gemini AI 的動態對話系統與 Plotly 數據視覺化</em></p>
+</div>
 
 ## Core Features
 * **AI 驅動對話 (Generative AI):** 介接 Google Gemini API (gemini-3.6-flash)，NPC 的對話與辦公室八卦皆為即時動態生成，每次遊玩都有不同驚喜。
