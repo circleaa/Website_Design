@@ -15,11 +15,11 @@
   <p><em>▲ 玩家在辦公室地圖中自由探索，尋找逃離的出口</em></p>
 
   <img src="images/chart.png" width="800" alt="AI 互動與數據報表">
-  <p><em>▲ 結合 Gemini AI 的動態對話系統與 Plotly 數據視覺化</em></p>
+  <p><em>▲ Plotly 數據視覺化</em></p>
 
   <img src="images/gossip1.png" width="395" alt="對話思考">
   <img src="images/gossip2.png" width="395" alt="AI 互動對話">
-  <p><em>▲ LLM 大型語言模型對話</em></p>
+  <p><em>▲ Gemini AI 的動態對話系統</em></p>
 </div>
 
 ## Core Features
