@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <title>Simple RPG</title>
+        <!-- 引入外部 CSS -->
+        <link rel="stylesheet" href="{{url_for('static', filename='css/style.css')}}">
+        
+        <style>
+            /* 1. 遊戲外的背景設定 (超出遊戲畫面的地方) */
+            body {
+                margin: 0;
+                padding: 0;
+                overflow: hidden;
+                
+                /* 設定「遊戲外」的背景 
+                background-color: #1a1a1a;  預設深灰色 */
+                
+                /* 外框背景*/
+                background-image: url('/static/images/wall.png'); 
+                background-size: cover; 
+            }
+            
+            /* 2. 將整個畫面當作排版容器，確保遊戲永遠在正中間 */
+            .game-wrapper {
+                position: relative;
+                width: 100vw;
+                height: 100vh;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+            }
+
+            /* 3. 遊戲畫布本身：這才是你真正的遊戲範圍 */
+            canvas {
+                /* 鎖定完美的 720:420 比例，碰到螢幕邊緣會自動縮小 */
+                aspect-ratio: 720 / 420; 
+                max-width: 100%;
+                max-height: 100%;
+                
+                /* 遊戲內的地板背景 */
+                background-image: url(/static/images/floor.png); 
+                background-size: cover;
+                
+                /* 加一點黑色的外陰影，會讓遊戲畫面更有立體感，像是一台發光的機台 */
+                box-shadow: 0px 0px 40px rgba(0, 0, 0, 0.8);
+            }
+
+            /* 2. UI 容器：絕對置中 */
+            #ui-container {
+                position: absolute;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%);
+                z-index: 100;
+                
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                gap: 15px; 
+            }
+
+            /* 3. 統一美化，預設隱藏 */
+            #dateInputs, #random, #test, #line-chart, #line-chartt {
+                display: none;
+                background-color: rgba(255, 255, 255, 0.95);
+                padding: 20px 40px;
+                border-radius: 10px;
+                border: 3px solid brown;
+                box-shadow: 0px 5px 15px rgba(0,0,0,0.3);
+            }
+
+            /* 4. 對話框專屬設定 (解決重疊與文字變直的關鍵) */
+            #talkBox {
+                background-color: rgba(255, 255, 255, 0.95);
+                padding: 15px 40px !important;
+                border-radius: 10px;
+                border: 3px solid brown;
+                box-shadow: 0px 5px 15px rgba(0,0,0,0.3);
+                
+                height: auto !important; 
+                color: brown !important;
+                font-size: 26px !important;
+                font-weight: bold !important;
+                margin: 0 !important;
+                
+                position: static !important;
+                transform: none !important;
+
+                /* 👇 1. 解除不准換行的設定，改為正常換行 (normal) */
+                white-space: normal !important; 
+                
+                /* 👇 2. 加上最大寬度限制 (畫布是 720px，設定 600px 讓左右保留一點空間) */
+                max-width: 600px !important; 
+                
+                /* 👇 3. 增加一點行高，讓變成兩行時文字不會黏在一起 */
+                line-height: 1.5 !important; 
+            }
+            
+            #talkBox:empty {
+                display: none !important;
+            }
+
+            /* 5. 圖表邊界微調 */
+            /*讓圖表左右完美並排的容器 */
+            #charts-wrapper {
+                display: flex;
+                flex-direction: row; /* 強制橫向排列 */
+                justify-content: center;
+                gap: 15px; /* 兩張圖表中間的間距 */
+            }
+            /* 重設圖表的外觀與大小 */
+            #line-chart, #line-chartt {
+                width: 320px !important;  /* 兩張 320px 加上間距，剛好能完美塞進 720px 的畫布 */
+                height: 250px !important; /* 拉高一點，讓圖形不會太扁 */
+                background-color: rgba(255, 255, 255, 0.95);
+                padding: 5px;
+                border-radius: 10px;
+                border: 3px solid brown;
+                box-shadow: 0px 5px 15px rgba(0,0,0,0.3);
+            }
+
+            /* 測驗文字稍微調整，避免內部擁擠 */
+            #test p { margin-top: 0; font-weight: bold; }
+            #question { font-size: 22px; margin: 10px 0; }
+
+            /* ... 中間保留你原本的 #ui-container 等等所有設定 ... */
+
+            /* 👇 4. 全新的開場標題設定與動畫 */
+            #intro-title {
+                position: absolute;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%);
+                font-size: 80px; /* 超大字體 */
+                color: white;
+                text-shadow: 4px 4px 15px rgba(0, 0, 0, 0.9); /* 黑色立體陰影 */
+                z-index: 999;
+                pointer-events: none; /* 讓滑鼠點擊能穿透它，不影響遊戲 */
+                
+                /* 播放動畫：閃爍0.5秒共6次(3秒)，然後永遠隱藏 */
+                animation: blink 0.5s 6, fadeOut 0.1s 3s forwards;
+            }
+
+            /* 定義閃爍效果 */
+            @keyframes blink {
+                0%, 100% { opacity: 1; }
+                50% { opacity: 0; }
+            }
+
+            /* 定義消失效果 */
+            @keyframes fadeOut {
+                to { 
+                    opacity: 0; 
+                    visibility: hidden; 
+                }
+            }
+
+        </style>
+    </head>
+    <body>
+        <!-- 遊戲主體開始 -->
+        <div class="game-wrapper">
+            <h1 id="intro-title">逃離職場</h1>
+            <!-- 畫布 -->
+            <canvas id="myCanvas" width="720" height="420"></canvas>
+
+            <!-- 浮動 UI 容器 -->
+            <div id="ui-container">
+                
+                <!-- 對話框 (標題) -->
+                <p id="talkBox"></p>
+
+                <!-- 亂數選擇器 -->
+                <div id="random">
+                    <p>今天的午餐是：</p>
+                    <p id="lunch"></p>
+                    <button onclick="displayLunch()">選擇午餐</button>
+                </div>
+
+                <!-- 心理測驗 -->
+                <div id="test">
+                    <p>適合職位調查</p>
+                    <div>
+                        <h2 id="question"></h2>
+                        <div id="options"></div>
+                    </div>
+                    <input id="startButton" type="button" value="開始作答">
+                </div>
+
+                <!-- 日期選擇器 -->
+                <div id="dateInputs">
+                    <label for="date1">Start Date:</label>
+                    <input type="date" id="date1"><br><br>
+                    <label for="date2">End Date:</label>
+                    <input type="date" id="date2"><br>
+                    <p id="startDateText"></p>
+                    <p id="endDateText"></p>
+                    <p id="result" style="color:red; font-weight:bold;"></p>
+                </div>
+                <!-- 新增 charts-wrapper 來讓裡面的圖表左右並排 -->
+                <div id="charts-wrapper">
+                    <div id="line-chart"></div>
+                    <div id="line-chartt"></div>
+                </div>
+                
+            </div>
+        </div>
+        <!-- 遊戲主體結束 -->
+
+        <!-- 隱藏的資料區 -->
+        <div id="exchangeData" style="display: none;">{{exchangeData}}</div>
+        <div id="exchangeDataa" style="display: none;">{{exchangeDataa}}</div>
+        
+        <!-- 載入腳本 -->
+        <script src="https://cdn.plot.ly/plotly-2.24.1.min.js" charset="utf-8"></script>
+        <script src="//unpkg.com/jquery"></script>
+        <script src="{{url_for('static', filename='js/main.js')}}"></script>
+        <script src="{{url_for('static', filename='js/data.js')}}"></script>
+
+        <script>
+            var lunchOptions = ["拉麵", "披薩", "三明治", "壽司", "鍋貼"];
+            function chooseLunch() {
+                var randomIndex = Math.floor(Math.random() * lunchOptions.length);
+                return lunchOptions[randomIndex];
+            }
+            function displayLunch() {
+                var chosenLunch = chooseLunch();
+                document.getElementById("lunch").innerHTML = chosenLunch;
+            }
+        </script>
+    </body>
+</html>
